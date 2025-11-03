@@ -64,13 +64,13 @@ NODE_ENV=production
 
 ### For each collection, set these permissions:
 
-**Public Collections (courses, lessons, quizzes, quiz_questions, badges):**
+**Public Collections (courses, lessons, quizzes, quiz_questions, badges, instructors):**
 - Read: role:all
 - Create: role:instructor, role:admin
 - Update: role:instructor, role:admin  
 - Delete: role:admin
 
-**User-specific Collections (user_progress, quiz_attempts, user_badges, notifications, transactions):**
+**User-specific Collections (users, user_progress, quiz_attempts, user_badges, notifications, transactions):**
 - Read: role:user, role:admin
 - Create: role:user, role:admin
 - Update: role:user, role:admin
@@ -84,9 +84,28 @@ NODE_ENV=production
 
 ## Collection Attributes
 
+### Users Collection
+```json
+{
+  "userId": { "type": "integer", "required": true },
+  "name": { "type": "string", "size": 255, "required": true },
+  "email": { "type": "string", "size": 255, "required": true },
+  "password": { "type": "string", "size": 255, "required": true }
+}
+```
+
+### Instructors Collection
+```json
+{
+  "instructorId": { "type": "string", "size": 50, "required": true },
+  "instructorName": { "type": "string", "size": 255, "required": true }
+}
+```
+
 ### Courses Collection
 ```json
 {
+  "courseId": { "type": "string", "size": 50, "required": true },
   "title": { "type": "string", "size": 255, "required": true },
   "description": { "type": "string", "size": 2000, "required": true },
   "instructorId": { "type": "string", "size": 50, "required": true },
@@ -96,32 +115,30 @@ NODE_ENV=production
   "duration": { "type": "integer", "required": false },
   "level": { "type": "string", "size": 50, "required": false },
   "enrollmentCount": { "type": "integer", "default": 0 },
-  "isPublished": { "type": "boolean", "default": false },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "isPublished": { "type": "boolean", "default": false }
 }
 ```
 
 ### Lessons Collection  
 ```json
 {
+  "lessonId": { "type": "string", "size": 50, "required": true },
   "courseId": { "type": "string", "size": 50, "required": true },
+  "instructorId": { "type": "string", "size": 50, "required": true },
   "title": { "type": "string", "size": 255, "required": true },
   "content": { "type": "string", "size": 5000, "required": true },
   "type": { "type": "string", "size": 20, "required": true },
-  "order": { "type": "integer", "required": true },
   "duration": { "type": "integer", "required": false },
   "videoUrl": { "type": "string", "size": 500, "required": false },
   "fileUrl": { "type": "string", "size": 500, "required": false },
-  "completionCount": { "type": "integer", "default": 0 },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "completionCount": { "type": "integer", "default": 0 }
 }
 ```
 
 ### Quizzes Collection
 ```json
 {
+  "quizId": { "type": "string", "size": 50, "required": true },
   "courseId": { "type": "string", "size": 50, "required": true },
   "title": { "type": "string", "size": 255, "required": true },
   "description": { "type": "string", "size": 1000, "required": true },
@@ -129,88 +146,85 @@ NODE_ENV=production
   "passingScore": { "type": "integer", "required": true },
   "maxAttempts": { "type": "integer", "required": false },
   "attemptCount": { "type": "integer", "default": 0 },
-  "isActive": { "type": "boolean", "default": true },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "isActive": { "type": "boolean", "default": true }
 }
 ```
 
 ### Quiz Questions Collection
 ```json
 {
+  "questionId": { "type": "string", "size": 50, "required": true },
   "quizId": { "type": "string", "size": 50, "required": true },
   "question": { "type": "string", "size": 1000, "required": true },
-  "options": { "type": "string", "size": 2000, "required": true, "array": true },
   "correctAnswer": { "type": "string", "size": 500, "required": true },
   "explanation": { "type": "string", "size": 1000, "required": false },
   "order": { "type": "integer", "required": true },
-  "points": { "type": "integer", "default": 1 }
-}
-```
-
-### User Progress Collection
-```json
-{
-  "userId": { "type": "string", "size": 50, "required": true },
-  "courseId": { "type": "string", "size": 50, "required": true },
-  "lessonId": { "type": "string", "size": 50, "required": true },
-  "completedAt": { "type": "datetime", "required": false },
-  "progress": { "type": "integer", "required": true },
-  "timeSpent": { "type": "integer", "required": true },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "points": { "type": "integer", "default": 1 },
+  "options": { "type": "string", "size": 2000, "required": true }
 }
 ```
 
 ### Quiz Attempts Collection
 ```json
 {
+  "attemptId": { "type": "string", "size": 50, "required": true },
   "userId": { "type": "string", "size": 50, "required": true },
   "quizId": { "type": "string", "size": 50, "required": true },
   "answers": { "type": "string", "size": 5000, "required": true },
   "score": { "type": "integer", "required": true },
   "totalQuestions": { "type": "integer", "required": true },
   "timeTaken": { "type": "integer", "required": false },
-  "passed": { "type": "boolean", "required": true },
-  "attemptedAt": { "type": "datetime", "required": true }
-}
-```
-
-### Transactions Collection
-```json
-{
-  "userId": { "type": "string", "size": 50, "required": true },
-  "type": { "type": "string", "size": 20, "required": true },
-  "amount": { "type": "float", "required": true },
-  "description": { "type": "string", "size": 500, "required": true },
-  "courseId": { "type": "string", "size": 50, "required": false },
-  "status": { "type": "string", "size": 20, "required": true },
-  "paymentMethod": { "type": "string", "size": 50, "required": false },
-  "createdAt": { "type": "datetime", "required": true }
+  "passed": { "type": "boolean", "required": true }
 }
 ```
 
 ### Ranks Collection
 ```json
 {
+  "rankId": { "type": "string", "size": 50, "required": true },
   "userId": { "type": "string", "size": 50, "required": true },
   "courseId": { "type": "string", "size": 50, "required": true },
   "score": { "type": "integer", "required": true },
   "rank": { "type": "integer", "required": true },
-  "totalParticipants": { "type": "integer", "required": true },
-  "achievedAt": { "type": "datetime", "required": true }
+  "totalParticipants": { "type": "integer", "required": true }
+}
+```
+
+### Transactions Collection
+```json
+{
+  "transactionId": { "type": "string", "size": 50, "required": true },
+  "userId": { "type": "string", "size": 50, "required": true },
+  "type": { "type": "string", "size": 20, "required": true },
+  "amount": { "type": "float", "required": true },
+  "description": { "type": "string", "size": 500, "required": true },
+  "courseId": { "type": "string", "size": 50, "required": false },
+  "status": { "type": "string", "size": 20, "required": true },
+  "paymentMethod": { "type": "string", "size": 50, "required": false }
+}
+```
+
+### Notifications Collection
+```json
+{
+  "notificationId": { "type": "string", "size": 50, "required": true },
+  "userId": { "type": "string", "size": 50, "required": true },
+  "title": { "type": "string", "size": 255, "required": true },
+  "message": { "type": "string", "size": 1000, "required": true },
+  "type": { "type": "string", "size": 20, "required": true },
+  "isRead": { "type": "boolean", "default": false }
 }
 ```
 
 ### Badges Collection
 ```json
 {
+  "badgeId": { "type": "string", "size": 50, "required": true },
   "name": { "type": "string", "size": 100, "required": true },
   "description": { "type": "string", "size": 500, "required": true },
-  "criteria": { "type": "string", "size": 500, "required": true },
+  "category": { "type": "string", "size": 100, "required": true },
   "icon": { "type": "string", "size": 100, "required": true },
-  "points": { "type": "integer", "default": 10 },
-  "createdAt": { "type": "datetime", "required": true }
+  "points": { "type": "integer", "default": 10 }
 }
 ```
 
@@ -218,37 +232,37 @@ NODE_ENV=production
 ```json
 {
   "userId": { "type": "string", "size": 50, "required": true },
-  "badgeId": { "type": "string", "size": 50, "required": true },
-  "earnedAt": { "type": "datetime", "required": true }
+  "badgeId": { "type": "string", "size": 50, "required": true }
 }
 ```
 
-### Notifications Collection
+### User Progress Collection
 ```json
 {
+  "progressId": { "type": "string", "size": 50, "required": true },
   "userId": { "type": "string", "size": 50, "required": true },
-  "title": { "type": "string", "size": 255, "required": true },
-  "message": { "type": "string", "size": 1000, "required": true },
-  "type": { "type": "string", "size": 20, "required": true },
-  "isRead": { "type": "boolean", "default": false },
-  "readAt": { "type": "datetime", "required": false },
-  "createdAt": { "type": "datetime", "required": true }
+  "courseId": { "type": "string", "size": 50, "required": true },
+  "lessonId": { "type": "string", "size": 50, "required": true },
+  "progress": { "type": "integer", "required": true },
+  "timeSpent": { "type": "integer", "required": true }
 }
 ```
 
 ## Indexes for Performance
 
 ### Recommended indexes:
+- users: email
+- instructors: instructorName
 - courses: instructorId, category, isPublished
-- lessons: courseId, order
+- lessons: courseId, instructorId
 - quizzes: courseId, isActive
 - quiz_questions: quizId, order
 - user_progress: userId, courseId, lessonId
-- quiz_attempts: userId, quizId, attemptedAt
-- transactions: userId, type, createdAt
-- ranks: courseId, rank, achievedAt
+- quiz_attempts: userId, quizId
+- transactions: userId, type, courseId
+- ranks: userId, courseId, rank
 - user_badges: userId, badgeId
-- notifications: userId, isRead, createdAt
+- notifications: userId, isRead
 
 ## Testing
 

@@ -46,6 +46,164 @@
       "response": []
     },
     {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users/user_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["users", "user_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"securePassword123\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Smith\",\n  \"email\": \"john.smith@example.com\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users/user_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["users", "user_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users/user_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["users", "user_123"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Instructors",
+      "item": [
+        {
+          "name": "Get All Instructors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/instructors",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["instructors"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Instructor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/instructors/INSTRUCTOR_12345",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["instructors", "INSTRUCTOR_12345"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Instructor",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"instructorName\": \"Dr. Sarah Johnson\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/instructors",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["instructors"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Instructor",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"instructorName\": \"Prof. Sarah Johnson, PhD\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/instructors/INSTRUCTOR_12345",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["instructors", "INSTRUCTOR_12345"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Instructor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/instructors/INSTRUCTOR_12345",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["instructors", "INSTRUCTOR_12345"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "response": []
+    },
+    {
       "name": "Courses",
       "item": [
         {
@@ -153,7 +311,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseId\": \"course_123\",\n  \"title\": \"Functions and Scope\",\n  \"content\": \"Understanding JavaScript functions and variable scope\",\n  \"type\": \"video\",\n  \"order\": 2,\n  \"duration\": 20,\n  \"videoUrl\": \"https://example.com/video2.mp4\"\n}"
+              "raw": "{\n  \"courseId\": \"course_123\",\n  \"instructorId\": \"INSTRUCTOR_12345\",\n  \"title\": \"Functions and Scope\",\n  \"content\": \"Understanding JavaScript functions and variable scope\",\n  \"type\": \"video\",\n  \"duration\": 20,\n  \"videoUrl\": \"https://example.com/video2.mp4\"\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/lessons",
@@ -330,7 +488,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"quizId\": \"quiz_123\",\n  \"question\": \"Which of the following is NOT a JavaScript data type?\",\n  \"options\": [\"string\", \"boolean\", \"integer\", \"undefined\"],\n  \"correctAnswer\": \"integer\",\n  \"explanation\": \"JavaScript has number type, not integer type\",\n  \"order\": 2,\n  \"points\": 1\n}"
+              "raw": "{\n  \"quizId\": \"quiz_123\",\n  \"question\": \"Which of the following is NOT a JavaScript data type?\",\n  \"options\": [\"string\", \"boolean\", \"integer\", \"undefined\"],\n  \"correctAnswer\": \"integer\",\n  \"explanation\": \"JavaScript has number type, not integer type\",\n  \"order\": 1,\n  \"points\": 1\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/quiz-questions",
@@ -572,7 +730,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Quiz Master\",\n  \"description\": \"Score 100% on any quiz\",\n  \"criteria\": \"Achieve perfect score on a quiz\",\n  \"icon\": \"🏆\",\n  \"points\": 25\n}"
+              "raw": "{\n  \"name\": \"Quiz Master\",\n  \"description\": \"Score 100% on any quiz\",\n  \"category\": \"Achievement\",\n  \"icon\": \"🏆\",\n  \"points\": 25\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/badges",
