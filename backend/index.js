@@ -16,6 +16,10 @@ export default async ({ req, res, log, error }) => {
   // Database and collection IDs
   const DATABASE_ID = process.env.DATABASE_ID || 'edtech_db';
   const COLLECTIONS = {
+    USERS: 'users',
+    INSTRUCTORS: 'instructors',
+    CATEGORIES: 'categories',
+    SUBCATEGORIES: 'subcategories',
     COURSES: 'courses',
     LESSONS: 'lessons',
     QUIZZES: 'quizzes',
@@ -140,6 +144,216 @@ export default async ({ req, res, log, error }) => {
 
     const requestBody = req.bodyRaw ? JSON.parse(req.bodyRaw) : {};
 
+    // USERS ENDPOINTS
+    if (resource === 'users') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific user
+            const user = await databases.getDocument(DATABASE_ID, COLLECTIONS.USERS, id);
+            return res.json({ success: true, data: user }, 200, corsHeaders);
+          } else {
+            // List all users
+            const queryParams = [];
+            if (url.searchParams.get('email')) {
+              queryParams.push(sdk.Query.equal('email', url.searchParams.get('email')));
+            }
+            queryParams.push(sdk.Query.orderDesc('$createdAt'));
+            
+            const users = await databases.listDocuments(DATABASE_ID, COLLECTIONS.USERS, queryParams);
+            return res.json({ 
+              success: true, 
+              data: users.documents,
+              total: users.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['name', 'email', 'password']);
+          const newUser = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            sdk.ID.unique(),
+            requestBody
+          );
+          await logger.logInfo('User created', { userId: newUser.$id, email: newUser.email });
+          return res.json({ success: true, data: newUser }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('User ID is required');
+          const updatedUser = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.USERS,
+            id,
+            requestBody
+          );
+          await logger.logInfo('User updated', { userId: id });
+          return res.json({ success: true, data: updatedUser }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('User ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.USERS, id);
+          await logger.logInfo('User deleted', { userId: id });
+          return res.json({ success: true, message: 'User deleted' }, 200, corsHeaders);
+      }
+    }
+
+    // INSTRUCTORS ENDPOINTS
+    if (resource === 'instructors') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific instructor
+            const instructor = await databases.getDocument(DATABASE_ID, COLLECTIONS.INSTRUCTORS, id);
+            return res.json({ success: true, data: instructor }, 200, corsHeaders);
+          } else {
+            // List all instructors
+            const queryParams = [sdk.Query.orderAsc('instructorName')];
+            const instructors = await databases.listDocuments(DATABASE_ID, COLLECTIONS.INSTRUCTORS, queryParams);
+            return res.json({ 
+              success: true, 
+              data: instructors.documents,
+              total: instructors.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['instructorName']);
+          const newInstructor = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.INSTRUCTORS,
+            generateCustomId('INSTRUCTOR'),
+            requestBody
+          );
+          await logger.logInfo('Instructor created', { instructorId: newInstructor.$id, name: newInstructor.instructorName });
+          return res.json({ success: true, data: newInstructor }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('Instructor ID is required');
+          const updatedInstructor = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.INSTRUCTORS,
+            id,
+            requestBody
+          );
+          await logger.logInfo('Instructor updated', { instructorId: id });
+          return res.json({ success: true, data: updatedInstructor }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('Instructor ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.INSTRUCTORS, id);
+          await logger.logInfo('Instructor deleted', { instructorId: id });
+          return res.json({ success: true, message: 'Instructor deleted' }, 200, corsHeaders);
+      }
+    }
+
+    // CATEGORIES ENDPOINTS
+    if (resource === 'categories') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific category
+            const category = await databases.getDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
+            return res.json({ success: true, data: category }, 200, corsHeaders);
+          } else {
+            // List all categories
+            const queryParams = [sdk.Query.orderAsc('categoryName')];
+            const categories = await databases.listDocuments(DATABASE_ID, COLLECTIONS.CATEGORIES, queryParams);
+            return res.json({ 
+              success: true, 
+              data: categories.documents,
+              total: categories.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['categoryName']);
+          const newCategory = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.CATEGORIES,
+            generateCustomId('CATEGORY'),
+            requestBody
+          );
+          await logger.logInfo('Category created', { categoryId: newCategory.$id, name: newCategory.categoryName });
+          return res.json({ success: true, data: newCategory }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('Category ID is required');
+          const updatedCategory = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.CATEGORIES,
+            id,
+            requestBody
+          );
+          await logger.logInfo('Category updated', { categoryId: id });
+          return res.json({ success: true, data: updatedCategory }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('Category ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
+          await logger.logInfo('Category deleted', { categoryId: id });
+          return res.json({ success: true, message: 'Category deleted' }, 200, corsHeaders);
+      }
+    }
+
+    // SUBCATEGORIES ENDPOINTS
+    if (resource === 'subcategories') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific subcategory
+            const subcategory = await databases.getDocument(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, id);
+            return res.json({ success: true, data: subcategory }, 200, corsHeaders);
+          } else {
+            // List subcategories (optionally filtered by categoryId)
+            const categoryId = url.searchParams.get('categoryId');
+            const queryParams = categoryId ? [sdk.Query.equal('categoryId', categoryId)] : [];
+            queryParams.push(sdk.Query.orderAsc('subcategoryName'));
+            
+            const subcategories = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, queryParams);
+            return res.json({ 
+              success: true, 
+              data: subcategories.documents,
+              total: subcategories.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['categoryId', 'subcategoryName']);
+          // Validate categoryId exists
+          await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          const newSubcategory = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.SUBCATEGORIES,
+            generateCustomId('SUBCATEGORY'),
+            requestBody
+          );
+          await logger.logInfo('Subcategory created', { subcategoryId: newSubcategory.$id, name: newSubcategory.subcategoryName });
+          return res.json({ success: true, data: newSubcategory }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('Subcategory ID is required');
+          // Validate categoryId if being updated
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          const updatedSubcategory = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.SUBCATEGORIES,
+            id,
+            requestBody
+          );
+          await logger.logInfo('Subcategory updated', { subcategoryId: id });
+          return res.json({ success: true, data: updatedSubcategory }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('Subcategory ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, id);
+          await logger.logInfo('Subcategory deleted', { subcategoryId: id });
+          return res.json({ success: true, message: 'Subcategory deleted' }, 200, corsHeaders);
+      }
+    }
+
     // COURSES ENDPOINTS
     if (resource === 'courses') {
       switch (req.method) {
@@ -177,6 +391,8 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['title', 'description', 'instructorId', 'category', 'price']);
+          // Validate instructorId exists
+          await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
           const newCourse = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.COURSES,
@@ -192,6 +408,10 @@ export default async ({ req, res, log, error }) => {
 
         case 'PUT':
           if (!id) throw new Error('Course ID is required');
+          // Validate instructorId if being updated
+          if (requestBody.instructorId) {
+            await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
+          }
           const updatedCourse = await databases.updateDocument(
             DATABASE_ID,
             COLLECTIONS.COURSES,
@@ -230,9 +450,16 @@ export default async ({ req, res, log, error }) => {
           }
 
         case 'POST':
-          validateRequired(requestBody, ['courseId', 'title', 'content', 'order']);
-          // Validate courseId exists
+          validateRequired(requestBody, ['courseId', 'instructorId', 'title', 'content', 'type']);
+          // Validate foreign keys exist
           await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
+          await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          if (requestBody.subcategoryId) {
+            await validateForeignKey(COLLECTIONS.SUBCATEGORIES, requestBody.subcategoryId, 'subcategoryId');
+          }
           const newLesson = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.LESSONS,
@@ -246,9 +473,18 @@ export default async ({ req, res, log, error }) => {
 
         case 'PUT':
           if (!id) throw new Error('Lesson ID is required');
-          // Validate courseId if being updated
+          // Validate foreign keys if being updated
           if (requestBody.courseId) {
             await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
+          }
+          if (requestBody.instructorId) {
+            await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
+          }
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          if (requestBody.subcategoryId) {
+            await validateForeignKey(COLLECTIONS.SUBCATEGORIES, requestBody.subcategoryId, 'subcategoryId');
           }
           const updatedLesson = await databases.updateDocument(
             DATABASE_ID,
@@ -345,7 +581,7 @@ export default async ({ req, res, log, error }) => {
           }, 200, corsHeaders);
 
         case 'POST':
-          validateRequired(requestBody, ['quizId', 'question', 'options', 'correctAnswer', 'order']);
+          validateRequired(requestBody, ['quizId', 'question', 'options', 'correctAnswer']);
           // Validate quizId exists
           await validateForeignKey(COLLECTIONS.QUIZZES, requestBody.quizId, 'quizId');
           const newQuestion = await databases.createDocument(
@@ -398,6 +634,7 @@ export default async ({ req, res, log, error }) => {
         case 'POST':
           validateRequired(requestBody, ['userId', 'courseId', 'lessonId']);
           // Validate foreign keys exist
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
           await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
           await validateForeignKey(COLLECTIONS.LESSONS, requestBody.lessonId, 'lessonId');
           // Check if progress already exists
@@ -414,7 +651,8 @@ export default async ({ req, res, log, error }) => {
               COLLECTIONS.USER_PROGRESS,
               existingProgress.documents[0].$id,
               {
-                ...requestBody
+                ...requestBody,
+                completedAt: requestBody.progress === 100 ? new Date().toISOString() : requestBody.completedAt
               }
             );
             return res.json({ success: true, data: updated }, 200, corsHeaders);
@@ -425,7 +663,8 @@ export default async ({ req, res, log, error }) => {
               COLLECTIONS.USER_PROGRESS,
               generateCustomId('PROGRESS'),
               {
-                ...requestBody
+                ...requestBody,
+                completedAt: requestBody.progress === 100 ? new Date().toISOString() : null
               }
             );
             return res.json({ success: true, data: newProgress }, 201, corsHeaders);
@@ -454,7 +693,8 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['userId', 'quizId', 'answers', 'score', 'totalQuestions']);
-          // Validate quizId exists
+          // Validate foreign keys exist
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
           await validateForeignKey(COLLECTIONS.QUIZZES, requestBody.quizId, 'quizId');
           const newAttempt = await databases.createDocument(
             DATABASE_ID,
@@ -497,6 +737,11 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['userId', 'type', 'amount', 'description']);
+          // Validate foreign keys exist
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
+          if (requestBody.courseId) {
+            await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
+          }
           const newTransaction = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.TRANSACTIONS,
@@ -527,7 +772,8 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['userId', 'courseId', 'score', 'rank']);
-          // Validate courseId exists
+          // Validate foreign keys exist
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
           await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
           const newRank = await databases.createDocument(
             DATABASE_ID,
@@ -586,7 +832,8 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['userId', 'badgeId']);
-          // Validate badgeId exists
+          // Validate foreign keys exist
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
           await validateForeignKey(COLLECTIONS.BADGES, requestBody.badgeId, 'badgeId');
           const newUserBadge = await databases.createDocument(
             DATABASE_ID,
@@ -618,6 +865,8 @@ export default async ({ req, res, log, error }) => {
 
         case 'POST':
           validateRequired(requestBody, ['userId', 'title', 'message', 'type']);
+          // Validate userId exists
+          await validateForeignKey(COLLECTIONS.USERS, requestBody.userId, 'userId');
           const newNotification = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.NOTIFICATIONS,
@@ -659,6 +908,10 @@ export default async ({ req, res, log, error }) => {
       error: 'Endpoint not found',
       availableEndpoints: [
         'GET /health',
+        'GET|POST|PUT|DELETE /users',
+        'GET|POST|PUT|DELETE /instructors',
+        'GET|POST|PUT|DELETE /categories',
+        'GET|POST|PUT|DELETE /subcategories',
         'GET|POST|PUT|DELETE /courses',
         'GET|POST|PUT|DELETE /lessons',
         'GET|POST|PUT|DELETE /quizzes',

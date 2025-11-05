@@ -64,13 +64,13 @@ NODE_ENV=production
 
 ### For each collection, set these permissions:
 
-**Public Collections (courses, lessons, quizzes, quiz_questions, badges):**
+**Public Collections (categories, subcategories, courses, lessons, quizzes, quiz_questions, badges, instructors):**
 - Read: role:all
 - Create: role:instructor, role:admin
 - Update: role:instructor, role:admin  
 - Delete: role:admin
 
-**User-specific Collections (user_progress, quiz_attempts, user_badges, notifications, transactions):**
+**User-specific Collections (users, user_progress, quiz_attempts, user_badges, notifications, transactions):**
 - Read: role:user, role:admin
 - Create: role:user, role:admin
 - Update: role:user, role:admin
@@ -82,7 +82,40 @@ NODE_ENV=production
 - Update: role:admin
 - Delete: role:admin
 
+**Note:** Categories and Subcategories are new collections added to support hierarchical content organization.
+
 ## Collection Attributes
+
+### Users Collection
+```json
+{
+  "name": { "type": "string", "size": 255, "required": true },
+  "email": { "type": "string", "size": 255, "required": true },
+  "password": { "type": "string", "size": 255, "required": true }
+}
+```
+
+### Instructors Collection
+```json
+{
+  "instructorName": { "type": "string", "size": 255, "required": true }
+}
+```
+
+### Categories Collection
+```json
+{
+  "categoryName": { "type": "string", "size": 255, "required": true }
+}
+```
+
+### Subcategories Collection
+```json
+{
+  "categoryId": { "type": "string", "size": 50, "required": true },
+  "subcategoryName": { "type": "string", "size": 255, "required": true }
+}
+```
 
 ### Courses Collection
 ```json
@@ -96,9 +129,7 @@ NODE_ENV=production
   "duration": { "type": "integer", "required": false },
   "level": { "type": "string", "size": 50, "required": false },
   "enrollmentCount": { "type": "integer", "default": 0 },
-  "isPublished": { "type": "boolean", "default": false },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "isPublished": { "type": "boolean", "default": false }
 }
 ```
 
@@ -106,16 +137,19 @@ NODE_ENV=production
 ```json
 {
   "courseId": { "type": "string", "size": 50, "required": true },
+  "instructorId": { "type": "string", "size": 50, "required": true },
   "title": { "type": "string", "size": 255, "required": true },
   "content": { "type": "string", "size": 5000, "required": true },
   "type": { "type": "string", "size": 20, "required": true },
-  "order": { "type": "integer", "required": true },
   "duration": { "type": "integer", "required": false },
   "videoUrl": { "type": "string", "size": 500, "required": false },
   "fileUrl": { "type": "string", "size": 500, "required": false },
   "completionCount": { "type": "integer", "default": 0 },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "thumbnail": { "type": "string", "size": 500, "required": false },
+  "categoryId": { "type": "string", "size": 50, "required": false },
+  "subcategoryId": { "type": "string", "size": 50, "required": false },
+  "chapterNo": { "type": "integer", "required": false },
+  "lessonNo": { "type": "integer", "required": false }
 }
 ```
 
@@ -130,8 +164,8 @@ NODE_ENV=production
   "maxAttempts": { "type": "integer", "required": false },
   "attemptCount": { "type": "integer", "default": 0 },
   "isActive": { "type": "boolean", "default": true },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "chapterNo": { "type": "integer", "required": false },
+  "lessonNo": { "type": "integer", "required": false }
 }
 ```
 
@@ -140,25 +174,12 @@ NODE_ENV=production
 {
   "quizId": { "type": "string", "size": 50, "required": true },
   "question": { "type": "string", "size": 1000, "required": true },
-  "options": { "type": "string", "size": 2000, "required": true, "array": true },
   "correctAnswer": { "type": "string", "size": 500, "required": true },
   "explanation": { "type": "string", "size": 1000, "required": false },
   "order": { "type": "integer", "required": true },
-  "points": { "type": "integer", "default": 1 }
-}
-```
-
-### User Progress Collection
-```json
-{
-  "userId": { "type": "string", "size": 50, "required": true },
-  "courseId": { "type": "string", "size": 50, "required": true },
-  "lessonId": { "type": "string", "size": 50, "required": true },
-  "completedAt": { "type": "datetime", "required": false },
-  "progress": { "type": "integer", "required": true },
-  "timeSpent": { "type": "integer", "required": true },
-  "createdAt": { "type": "datetime", "required": true },
-  "updatedAt": { "type": "datetime", "required": true }
+  "points": { "type": "integer", "default": 1 },
+  "options": { "type": "string", "size": 2000, "required": true, "array": true },
+  "questionNo": { "type": "integer", "required": false }
 }
 ```
 
@@ -172,7 +193,19 @@ NODE_ENV=production
   "totalQuestions": { "type": "integer", "required": true },
   "timeTaken": { "type": "integer", "required": false },
   "passed": { "type": "boolean", "required": true },
-  "attemptedAt": { "type": "datetime", "required": true }
+  "attemptedAt": { "type": "datetime", "required": false }
+}
+```
+
+### Ranks Collection
+```json
+{
+  "userId": { "type": "string", "size": 50, "required": true },
+  "courseId": { "type": "string", "size": 50, "required": true },
+  "score": { "type": "integer", "required": true },
+  "rank": { "type": "integer", "required": true },
+  "totalParticipants": { "type": "integer", "required": true },
+  "achievedAt": { "type": "datetime", "required": false }
 }
 ```
 
@@ -185,41 +218,7 @@ NODE_ENV=production
   "description": { "type": "string", "size": 500, "required": true },
   "courseId": { "type": "string", "size": 50, "required": false },
   "status": { "type": "string", "size": 20, "required": true },
-  "paymentMethod": { "type": "string", "size": 50, "required": false },
-  "createdAt": { "type": "datetime", "required": true }
-}
-```
-
-### Ranks Collection
-```json
-{
-  "userId": { "type": "string", "size": 50, "required": true },
-  "courseId": { "type": "string", "size": 50, "required": true },
-  "score": { "type": "integer", "required": true },
-  "rank": { "type": "integer", "required": true },
-  "totalParticipants": { "type": "integer", "required": true },
-  "achievedAt": { "type": "datetime", "required": true }
-}
-```
-
-### Badges Collection
-```json
-{
-  "name": { "type": "string", "size": 100, "required": true },
-  "description": { "type": "string", "size": 500, "required": true },
-  "criteria": { "type": "string", "size": 500, "required": true },
-  "icon": { "type": "string", "size": 100, "required": true },
-  "points": { "type": "integer", "default": 10 },
-  "createdAt": { "type": "datetime", "required": true }
-}
-```
-
-### User Badges Collection
-```json
-{
-  "userId": { "type": "string", "size": 50, "required": true },
-  "badgeId": { "type": "string", "size": 50, "required": true },
-  "earnedAt": { "type": "datetime", "required": true }
+  "paymentMethod": { "type": "string", "size": 50, "required": false }
 }
 ```
 
@@ -231,24 +230,130 @@ NODE_ENV=production
   "message": { "type": "string", "size": 1000, "required": true },
   "type": { "type": "string", "size": 20, "required": true },
   "isRead": { "type": "boolean", "default": false },
-  "readAt": { "type": "datetime", "required": false },
-  "createdAt": { "type": "datetime", "required": true }
+  "readAt": { "type": "datetime", "required": false }
+}
+```
+
+### Badges Collection
+```json
+{
+  "name": { "type": "string", "size": 100, "required": true },
+  "description": { "type": "string", "size": 500, "required": true },
+  "criteria": { "type": "string", "size": 500, "required": true },
+  "icon": { "type": "string", "size": 100, "required": true },
+  "points": { "type": "integer", "default": 10 }
+}
+```
+
+### User Badges Collection
+```json
+{
+  "userId": { "type": "string", "size": 50, "required": true },
+  "badgeId": { "type": "string", "size": 50, "required": true },
+  "earnedAt": { "type": "datetime", "required": false }
+}
+```
+
+### User Progress Collection
+```json
+{
+  "userId": { "type": "string", "size": 50, "required": true },
+  "courseId": { "type": "string", "size": 50, "required": true },
+  "lessonId": { "type": "string", "size": 50, "required": true },
+  "completedAt": { "type": "datetime", "required": false },
+  "progress": { "type": "integer", "required": true },
+  "timeSpent": { "type": "integer", "required": true }
 }
 ```
 
 ## Indexes for Performance
 
 ### Recommended indexes:
-- courses: instructorId, category, isPublished
-- lessons: courseId, order
-- quizzes: courseId, isActive
-- quiz_questions: quizId, order
-- user_progress: userId, courseId, lessonId
-- quiz_attempts: userId, quizId, attemptedAt
-- transactions: userId, type, createdAt
-- ranks: courseId, rank, achievedAt
-- user_badges: userId, badgeId
-- notifications: userId, isRead, createdAt
+
+#### Users Collection
+- email (unique)
+
+#### Instructors Collection
+- instructorName (key)
+
+#### Categories Collection (NEW)
+- categoryName (key)
+- categoryName (unique)
+
+#### Subcategories Collection (NEW)
+- categoryId (key)
+- subcategoryName (key)
+- categoryId, subcategoryName (composite unique)
+
+#### Courses Collection
+- instructorId (key)
+- category (key)
+- isPublished (key)
+- price (key)
+
+#### Lessons Collection
+- courseId (key)
+- instructorId (key)
+- type (key)
+- categoryId (key) - NEW
+- subcategoryId (key) - NEW
+- chapterNo (key) - NEW
+- lessonNo (key) - NEW
+
+#### Quizzes Collection
+- courseId (key)
+- isActive (key)
+- chapterNo (key) - NEW
+- lessonNo (key) - NEW
+
+#### Quiz Questions Collection
+- quizId (key)
+- order (key)
+- questionNo (key) - NEW
+
+#### Quiz Attempts Collection
+- userId (key)
+- quizId (key)
+- passed (key)
+- attemptedAt (key) - NEW
+- userId, quizId (composite key)
+
+#### Ranks Collection
+- userId (key)
+- courseId (key)
+- rank (key)
+- achievedAt (key) - NEW
+- courseId, rank (composite unique)
+
+#### Transactions Collection
+- userId (key)
+- type (key)
+- status (key)
+- courseId (key)
+
+#### Notifications Collection
+- userId (key)
+- type (key)
+- isRead (key)
+- readAt (key) - NEW
+
+#### Badges Collection
+- name (unique)
+- criteria (key) - UPDATED from category
+- points (key)
+
+#### User Badges Collection
+- userId (key)
+- badgeId (key)
+- earnedAt (key) - NEW
+- userId, badgeId (composite unique)
+
+#### User Progress Collection
+- userId (key)
+- courseId (key)
+- lessonId (key)
+- completedAt (key) - NEW
+- userId, lessonId (composite unique)
 
 ## Testing
 
