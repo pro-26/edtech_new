@@ -1,9 +1,9 @@
 {
   "info": {
     "name": "EdTech Platform API",
-    "description": "Complete API collection for EdTech Platform backend with Appwrite Functions. Base URL: https://68c2a1d90003e461b539.fra.appwrite.run\n\nFeatures:\n- Comprehensive logging via Discord webhook\n- CORS enabled for all endpoints\n- Consistent error handling with success/error response format\n- All endpoints support HTTPS requests\n- API automatically logs request details, errors, and important operations",
+    "description": "Complete API collection for EdTech Platform backend with Appwrite Functions. Base URL: https://68c2a1d90003e461b539.fra.appwrite.run\n\nFeatures:\n- Comprehensive logging via Discord webhook\n- CORS enabled for all endpoints\n- Consistent error handling with success/error response format\n- All endpoints support HTTPS requests\n- API automatically logs request details, errors, and important operations\n- Hierarchical content organization with Categories and Subcategories\n- Auto-completion tracking (completedAt set when progress reaches 100%)\n- Enhanced fields for chapter/lesson/question numbering\n\nNew in v2.0 (Nov 5, 2025):\n- Categories and Subcategories management\n- Lesson organization with chapters and numbering\n- Quiz and question numbering\n- DateTime tracking (completedAt, readAt, attemptedAt, achievedAt, earnedAt)\n- Badge criteria-based system",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "variable": [
     {
@@ -117,6 +117,195 @@
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/users/user_123",
               "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
               "path": ["users", "user_123"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/categories",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/categories?id=category_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["categories"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "category_123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryName\": \"Programming\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/categories",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryName\": \"Software Development\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/categories/category_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["categories", "category_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/categories/category_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["categories", "category_123"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "Subcategories",
+      "item": [
+        {
+          "name": "Get All Subcategories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subcategory by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories?id=subcategory_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "subcategory_123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subcategories by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories?categoryId=category_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories"],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "category_123"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Subcategory",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"category_123\",\n  \"subcategoryName\": \"Web Development\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Subcategory",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"category_123\",\n  \"subcategoryName\": \"Frontend Development\"\n}"
+            },
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories/subcategory_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories", "subcategory_123"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Subcategory",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/subcategories/subcategory_123",
+              "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
+              "path": ["subcategories", "subcategory_123"]
             }
           },
           "response": []
@@ -311,7 +500,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseId\": \"course_123\",\n  \"instructorId\": \"INSTRUCTOR_12345\",\n  \"title\": \"Functions and Scope\",\n  \"content\": \"Understanding JavaScript functions and variable scope\",\n  \"type\": \"video\",\n  \"duration\": 20,\n  \"videoUrl\": \"https://example.com/video2.mp4\"\n}"
+              "raw": "{\n  \"courseId\": \"course_123\",\n  \"instructorId\": \"INSTRUCTOR_12345\",\n  \"title\": \"Functions and Scope\",\n  \"content\": \"Understanding JavaScript functions and variable scope\",\n  \"type\": \"video\",\n  \"duration\": 20,\n  \"videoUrl\": \"https://example.com/video2.mp4\",\n  \"thumbnail\": \"https://example.com/lesson-thumb.jpg\",\n  \"categoryId\": \"category_123\",\n  \"subcategoryId\": \"subcategory_456\",\n  \"chapterNo\": 1,\n  \"lessonNo\": 2\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/lessons",
@@ -403,7 +592,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"courseId\": \"course_123\",\n  \"title\": \"Advanced JavaScript Quiz\",\n  \"description\": \"Test your advanced JavaScript knowledge\",\n  \"timeLimit\": 45,\n  \"passingScore\": 80,\n  \"maxAttempts\": 3\n}"
+              "raw": "{\n  \"courseId\": \"course_123\",\n  \"title\": \"Advanced JavaScript Quiz\",\n  \"description\": \"Test your advanced JavaScript knowledge\",\n  \"timeLimit\": 45,\n  \"passingScore\": 80,\n  \"maxAttempts\": 3,\n  \"chapterNo\": 1,\n  \"lessonNo\": 5\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/quizzes",
@@ -488,7 +677,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"quizId\": \"quiz_123\",\n  \"question\": \"Which of the following is NOT a JavaScript data type?\",\n  \"options\": [\"string\", \"boolean\", \"integer\", \"undefined\"],\n  \"correctAnswer\": \"integer\",\n  \"explanation\": \"JavaScript has number type, not integer type\",\n  \"order\": 1,\n  \"points\": 1\n}"
+              "raw": "{\n  \"quizId\": \"quiz_123\",\n  \"question\": \"Which of the following is NOT a JavaScript data type?\",\n  \"options\": [\"string\", \"boolean\", \"integer\", \"undefined\"],\n  \"correctAnswer\": \"integer\",\n  \"explanation\": \"JavaScript has number type, not integer type\",\n  \"order\": 1,\n  \"points\": 1,\n  \"questionNo\": 1\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/quiz-questions",
@@ -564,13 +753,19 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"user_123\",\n  \"courseId\": \"course_123\",\n  \"lessonId\": \"lesson_2\",\n  \"progress\": 75,\n  \"timeSpent\": 1200\n}"
+              "raw": "{\n  \"userId\": \"user_123\",\n  \"courseId\": \"course_123\",\n  \"lessonId\": \"lesson_2\",\n  \"progress\": 100,\n  \"timeSpent\": 1200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/progress",
               "host": ["https://68c2a1d90003e461b539.fra.appwrite.run"],
               "path": ["progress"]
-            }
+            },
+            "description": "Update user progress. When progress reaches 100, completedAt is automatically set to current timestamp."
           },
           "response": []
         }
@@ -730,7 +925,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Quiz Master\",\n  \"description\": \"Score 100% on any quiz\",\n  \"category\": \"Achievement\",\n  \"icon\": \"🏆\",\n  \"points\": 25\n}"
+              "raw": "{\n  \"name\": \"Quiz Master\",\n  \"description\": \"Score 100% on any quiz\",\n  \"criteria\": \"Score 100% on any quiz\",\n  \"icon\": \"🏆\",\n  \"points\": 25\n}"
             },
             "url": {
               "raw": "https://68c2a1d90003e461b539.fra.appwrite.run/badges",

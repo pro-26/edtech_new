@@ -18,6 +18,8 @@ export default async ({ req, res, log, error }) => {
   const COLLECTIONS = {
     USERS: 'users',
     INSTRUCTORS: 'instructors',
+    CATEGORIES: 'categories',
+    SUBCATEGORIES: 'subcategories',
     COURSES: 'courses',
     LESSONS: 'lessons',
     QUIZZES: 'quizzes',
@@ -245,6 +247,113 @@ export default async ({ req, res, log, error }) => {
       }
     }
 
+    // CATEGORIES ENDPOINTS
+    if (resource === 'categories') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific category
+            const category = await databases.getDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
+            return res.json({ success: true, data: category }, 200, corsHeaders);
+          } else {
+            // List all categories
+            const queryParams = [sdk.Query.orderAsc('categoryName')];
+            const categories = await databases.listDocuments(DATABASE_ID, COLLECTIONS.CATEGORIES, queryParams);
+            return res.json({ 
+              success: true, 
+              data: categories.documents,
+              total: categories.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['categoryName']);
+          const newCategory = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.CATEGORIES,
+            generateCustomId('CATEGORY'),
+            requestBody
+          );
+          await logger.logInfo('Category created', { categoryId: newCategory.$id, name: newCategory.categoryName });
+          return res.json({ success: true, data: newCategory }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('Category ID is required');
+          const updatedCategory = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.CATEGORIES,
+            id,
+            requestBody
+          );
+          await logger.logInfo('Category updated', { categoryId: id });
+          return res.json({ success: true, data: updatedCategory }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('Category ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.CATEGORIES, id);
+          await logger.logInfo('Category deleted', { categoryId: id });
+          return res.json({ success: true, message: 'Category deleted' }, 200, corsHeaders);
+      }
+    }
+
+    // SUBCATEGORIES ENDPOINTS
+    if (resource === 'subcategories') {
+      switch (req.method) {
+        case 'GET':
+          if (id) {
+            // Get specific subcategory
+            const subcategory = await databases.getDocument(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, id);
+            return res.json({ success: true, data: subcategory }, 200, corsHeaders);
+          } else {
+            // List subcategories (optionally filtered by categoryId)
+            const categoryId = url.searchParams.get('categoryId');
+            const queryParams = categoryId ? [sdk.Query.equal('categoryId', categoryId)] : [];
+            queryParams.push(sdk.Query.orderAsc('subcategoryName'));
+            
+            const subcategories = await databases.listDocuments(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, queryParams);
+            return res.json({ 
+              success: true, 
+              data: subcategories.documents,
+              total: subcategories.total
+            }, 200, corsHeaders);
+          }
+
+        case 'POST':
+          validateRequired(requestBody, ['categoryId', 'subcategoryName']);
+          // Validate categoryId exists
+          await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          const newSubcategory = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.SUBCATEGORIES,
+            generateCustomId('SUBCATEGORY'),
+            requestBody
+          );
+          await logger.logInfo('Subcategory created', { subcategoryId: newSubcategory.$id, name: newSubcategory.subcategoryName });
+          return res.json({ success: true, data: newSubcategory }, 201, corsHeaders);
+
+        case 'PUT':
+          if (!id) throw new Error('Subcategory ID is required');
+          // Validate categoryId if being updated
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          const updatedSubcategory = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.SUBCATEGORIES,
+            id,
+            requestBody
+          );
+          await logger.logInfo('Subcategory updated', { subcategoryId: id });
+          return res.json({ success: true, data: updatedSubcategory }, 200, corsHeaders);
+
+        case 'DELETE':
+          if (!id) throw new Error('Subcategory ID is required');
+          await databases.deleteDocument(DATABASE_ID, COLLECTIONS.SUBCATEGORIES, id);
+          await logger.logInfo('Subcategory deleted', { subcategoryId: id });
+          return res.json({ success: true, message: 'Subcategory deleted' }, 200, corsHeaders);
+      }
+    }
+
     // COURSES ENDPOINTS
     if (resource === 'courses') {
       switch (req.method) {
@@ -345,6 +454,12 @@ export default async ({ req, res, log, error }) => {
           // Validate foreign keys exist
           await validateForeignKey(COLLECTIONS.COURSES, requestBody.courseId, 'courseId');
           await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          if (requestBody.subcategoryId) {
+            await validateForeignKey(COLLECTIONS.SUBCATEGORIES, requestBody.subcategoryId, 'subcategoryId');
+          }
           const newLesson = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.LESSONS,
@@ -364,6 +479,12 @@ export default async ({ req, res, log, error }) => {
           }
           if (requestBody.instructorId) {
             await validateForeignKey(COLLECTIONS.INSTRUCTORS, requestBody.instructorId, 'instructorId');
+          }
+          if (requestBody.categoryId) {
+            await validateForeignKey(COLLECTIONS.CATEGORIES, requestBody.categoryId, 'categoryId');
+          }
+          if (requestBody.subcategoryId) {
+            await validateForeignKey(COLLECTIONS.SUBCATEGORIES, requestBody.subcategoryId, 'subcategoryId');
           }
           const updatedLesson = await databases.updateDocument(
             DATABASE_ID,
@@ -530,7 +651,8 @@ export default async ({ req, res, log, error }) => {
               COLLECTIONS.USER_PROGRESS,
               existingProgress.documents[0].$id,
               {
-                ...requestBody
+                ...requestBody,
+                completedAt: requestBody.progress === 100 ? new Date().toISOString() : requestBody.completedAt
               }
             );
             return res.json({ success: true, data: updated }, 200, corsHeaders);
@@ -541,7 +663,8 @@ export default async ({ req, res, log, error }) => {
               COLLECTIONS.USER_PROGRESS,
               generateCustomId('PROGRESS'),
               {
-                ...requestBody
+                ...requestBody,
+                completedAt: requestBody.progress === 100 ? new Date().toISOString() : null
               }
             );
             return res.json({ success: true, data: newProgress }, 201, corsHeaders);
@@ -679,7 +802,7 @@ export default async ({ req, res, log, error }) => {
           }, 200, corsHeaders);
 
         case 'POST':
-          validateRequired(requestBody, ['name', 'description', 'category', 'icon']);
+          validateRequired(requestBody, ['name', 'description', 'criteria', 'icon']);
           const newBadge = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.BADGES,
@@ -787,6 +910,8 @@ export default async ({ req, res, log, error }) => {
         'GET /health',
         'GET|POST|PUT|DELETE /users',
         'GET|POST|PUT|DELETE /instructors',
+        'GET|POST|PUT|DELETE /categories',
+        'GET|POST|PUT|DELETE /subcategories',
         'GET|POST|PUT|DELETE /courses',
         'GET|POST|PUT|DELETE /lessons',
         'GET|POST|PUT|DELETE /quizzes',
