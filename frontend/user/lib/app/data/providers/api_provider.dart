@@ -23,8 +23,8 @@ class ApiProvider extends GetConnect {
 
   // Users Module
   Future<Response> createUser(Map data) => post('/users', data);
-  // Future<Response> getUsers() => get('/users');
-  // Future<Response> getUser(String id) => get('/users/$id');
+  Future<Response> getUsers() => get('/users');
+  Future<Response> getUser(String id) => get('/users/$id');
   Future<Response> updateUser(String id, Map data) => put('/users/$id', data);
   Future<Response> deleteUser(String id) => delete('/users/$id');
 

@@ -18,11 +18,16 @@ import 'package:ed_tech/app/routes/app_pages.dart';
   created by : Farseen
   date : 2025-08-13
   upated by : Muhammed Shabeer OP
-  last updated : 2025-08-13
+  last updated : 2025-11-27
 */
+
+import 'package:ed_tech/app/modules/home/controllers/dashboard.controller.dart';
 
 class ProfileView extends GetResponsiveView {
   ProfileView({super.key}) : super(alwaysUseBuilder: false);
+
+  final DashboardController dashboardController =
+      Get.find<DashboardController>();
 
   @override
   Widget? phone() {
@@ -48,34 +53,38 @@ class ProfileView extends GetResponsiveView {
   }
 
   Widget _buildProfileHeader() {
-    return Column(
-      children: [
-        Stack(
-          children: [
-            const CircleAvatar(
-              radius: 60,
-              // changed to cached network image
-              backgroundImage: CachedNetworkImageProvider(
-                'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
+    return Obx(() {
+      final user = dashboardController.currentUser.value;
+      return Column(
+        children: [
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 60,
+                // changed to cached network image
+                backgroundImage: CachedNetworkImageProvider(
+                  user?.profilePicture ??
+                      'https://avatar.iran.liara.run/public/40',
+                ),
+                backgroundColor: Colors.transparent,
               ),
-              backgroundColor: Colors.transparent,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Muhammed',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          '9876543210',
-          style: TextStyle(
-            fontSize: 16,
-            color: Get.theme.colorScheme.onSurface,
+            ],
           ),
-        ),
-      ],
-    );
+          const SizedBox(height: 16),
+          Text(
+            user?.name ?? 'User',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            user?.phone ?? '',
+            style: TextStyle(
+              fontSize: 16,
+              color: Get.theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildProfileOptions() {

@@ -1,7 +1,7 @@
 // lib/app/global_widgets/subjectscard.dart
+import 'package:ed_tech/app/data/models/course.model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../modules/home/views/subjects.view.dart';
 
 class SubjectsCard extends StatelessWidget {
   final Course course;
@@ -31,14 +31,21 @@ class SubjectsCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.network(
-                course.imageUrl,
+                course.thumbnail ??
+                    'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
                 width: imageSize,
                 height: imageSize,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: imageSize,
+                  height: imageSize,
+                  color: Colors.grey[300],
+                  child: Icon(Icons.image_not_supported),
+                ),
               ),
             ),
             SizedBox(width: screenWidth * 0.04),
-    
+
             // Text section
             Expanded(
               child: Column(
@@ -55,7 +62,7 @@ class SubjectsCard extends StatelessWidget {
                   ),
                   SizedBox(height: screenWidth * 0.01),
                   Text(
-                    course.instructor,
+                    'Instructor', // Placeholder as instructor name is not in Course model yet
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.grey,
                     ),
@@ -65,7 +72,7 @@ class SubjectsCard extends StatelessWidget {
                 ],
               ),
             ),
-    
+
             // Responsive button
             SizedBox(
               width: buttonWidth,
@@ -77,9 +84,7 @@ class SubjectsCard extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: screenWidth * 0.025,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: screenWidth * 0.025),
                 ),
                 child: const Text('View'),
               ),

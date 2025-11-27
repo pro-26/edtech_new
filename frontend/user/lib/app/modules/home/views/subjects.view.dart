@@ -1,23 +1,21 @@
-// lib/app/modules/home/views/course.view.dart
+/*
+  This is the subjects view for the user.
+  It displays the list of subjects and allows the user to search for a subject.
+  It also provides options to filter the subjects by category and instructor.
 
+  created by : Farseen
+  date : 2025-08-13
+  upated by : Muhammed Shabeer OP
+  last updated : 2025-11-27
+*/
+
+import 'package:ed_tech/app/data/models/subject.model.dart';
 import 'package:ed_tech/app/modules/home/controllers/subjects.controller.dart';
+import 'package:ed_tech/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../global_widgets/subject_card_horizontal.dart';
 import '../../../global_widgets/custom_search_bar.dart';
-
-// Data model for a course
-class Course {
-  final String title;
-  final String instructor;
-  final String imageUrl;
-
-  Course({
-    required this.title,
-    required this.instructor,
-    required this.imageUrl,
-  });
-}
 
 class SubjectsView extends GetResponsiveView<SubjectsController> {
   SubjectsView({super.key});
@@ -51,21 +49,39 @@ class SubjectsView extends GetResponsiveView<SubjectsController> {
           // Subjects list as a sliver
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                return SubjectsCard(
-                  course: Course(
-                    title: 'Malayalam',
-                    instructor: 'Mr. Hari Krishnan',
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
-                  ),
-                  onTap: () {
-                    // TODO: Add navigation or other logic here.
-                  },
+            sliver: Obx(() {
+              if (controller.isLoading.value) {
+                return SliverToBoxAdapter(
+                  child: Center(child: CircularProgressIndicator()),
                 );
-              }, childCount: 10),
-            ),
+              }
+              if (controller.displayedCourses.isEmpty) {
+                return SliverToBoxAdapter(
+                  child: Center(child: Text("No courses found")),
+                );
+              }
+              return SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final course = controller.displayedCourses[index];
+                  return SubjectsCard(
+                    course: course,
+                    onTap: () {
+                      Get.toNamed(
+                        Routes.COURSE_DETAILS,
+                        arguments: {
+                          'courseId': course.id,
+                          'subject': SubjectModel(
+                            subjectId: 0,
+                            title: course.title,
+                            imageUrl: course.thumbnail ?? '',
+                          ),
+                        },
+                      );
+                    },
+                  );
+                }, childCount: controller.displayedCourses.length),
+              );
+            }),
           ),
 
           // Bottom spacing
@@ -78,15 +94,14 @@ class SubjectsView extends GetResponsiveView<SubjectsController> {
   Widget _buildFilterTabs() {
     final filterTabs = ['All', 'My Subjects', 'Completed'];
 
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: filterTabs.map((tab) {
-        return _buildFilterChip(
-          tab,
-          tab == 'All', // Default selection logic
-        );
-      }).toList(),
+    return Obx(
+      () => Wrap(
+        spacing: 8.0,
+        runSpacing: 8.0,
+        children: filterTabs.map((tab) {
+          return _buildFilterChip(tab, tab == controller.selectedFilter.value);
+        }).toList(),
+      ),
     );
   }
 
@@ -96,7 +111,9 @@ class SubjectsView extends GetResponsiveView<SubjectsController> {
       checkmarkColor: Get.theme.colorScheme.onPrimaryContainer,
       selected: isSelected,
       onSelected: (selected) {
-        // TODO: Implement state management to handle filter selection
+        if (selected) {
+          controller.filterCourses(title);
+        }
       },
       selectedColor: Get.theme.colorScheme.onPrimary,
       labelStyle: TextStyle(

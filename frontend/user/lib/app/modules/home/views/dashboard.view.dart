@@ -1,3 +1,13 @@
+/*
+  DashboardView
+  - Purpose: Main user dashboard. Shows enrolled courses, continue-learning area,
+    and a sliver app bar with user quick actions.
+  - Notes: Responsive via GetResponsiveView. Uses small helper widgets and cached
+    images. This is a non-functional header to aid future readers.
+  - Author: Muhammed Shabeer OP
+  - Added: 2025-11-27 (annotation)
+*/
+
 import 'package:flutter/material.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,121 +21,192 @@ import 'package:ed_tech/app/global_widgets/subject_card.dart';
 import 'package:ed_tech/app/modules/home/controllers/dashboard.controller.dart';
 import 'package:ed_tech/app/routes/app_pages.dart';
 
-/*
-  DashboardView
-  - Purpose: Main user dashboard. Shows enrolled courses, continue-learning area,
-    and a sliver app bar with user quick actions.
-  - Notes: Responsive via GetResponsiveView. Uses small helper widgets and cached
-    images. This is a non-functional header to aid future readers.
-  - Author: Muhammed Shabeer OP
-  - Added: 2025-10-23 (annotation)
-*/
-
 class DashboardView extends GetResponsiveView<DashboardController> {
   DashboardView({super.key}) : super(alwaysUseBuilder: false);
 
   @override
   Widget? phone() {
-    var subjectsArea = [
-      Row(
-        children: [
-          Text(
-            "Enrolled Courses",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Get.theme.colorScheme.onSurface,
-            ),
-          ),
-          const Spacer(),
-          TextButton(onPressed: () {}, child: const Text("See All")),
-        ],
-      ).paddingSymmetric(horizontal: 16, vertical: 8),
-      SizedBox(
-        height: 250,
-        child: ListView.separated(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-          scrollDirection: Axis.horizontal,
-          itemCount: 10,
-          separatorBuilder: (_, _) => const SizedBox(width: 16),
-          itemBuilder: (context, index) {
-            return SubjectCardVertical(
-              title: 'Subject $index',
-              instructor: 'Instructor $index',
-              imageUrl:
-                  'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
-              onTap: () {
-                // Navigate to course details or perform an action
-                Get.toNamed(
-                  Routes.COURSE_DETAILS,
-                  arguments: {
-                    'subject': SubjectModel(
-                      subjectId: index,
-                      title: 'Subject $index',
-                      imageUrl:
-                          'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
-                    ),
-                  },
-                );
-              },
-              width: 200,
-            );
-          },
-        ),
-      ),
-    ];
-    var continueLearningArea = [
-      Row(
-        children: [
-          Text(
-            "Continue Learning",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Get.theme.colorScheme.onSurface,
-            ),
-          ),
-          const Spacer(),
-          TextButton(onPressed: () {}, child: const Text("See All")),
-        ],
-      ).paddingOnly(left: 16, right: 16, bottom: 8),
-      // continue learning area
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ContinueLearningCard(
-          lessonLabel: 'Lesson 3',
-          title: 'Mathematics Fundamental Algebra',
-          subtitle: 'Introduction to Algebra',
-          imageUrl:
-              'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
-          progress: 0.90,
-          onContinue: () {},
-        ),
-      ),
-    ];
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(Get.context!).unfocus(); // Dismiss keyboard on tap
       },
       child: Scaffold(
         primary: true,
-        // Converting to a sliver-based layout using CustomScrollView
-        body: CustomScrollView(
-          slivers: [
-            _buildSliverAppBar(),
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...subjectsArea,
-                  ...continueLearningArea,
-                  const SizedBox(height: 100),
-                ],
+        body: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return CustomScrollView(
+            slivers: [
+              _buildSliverAppBar(),
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (controller.enrolledCourses.isNotEmpty) ...[
+                      _buildEnrolledCoursesHeader(),
+                      _buildEnrolledCoursesList(),
+                    ],
+                    if (controller.enrolledCourses.isNotEmpty) ...[
+                      _buildContinueLearningHeader(),
+                      _buildContinueLearningCard(),
+                    ],
+                    // If no enrolled courses, maybe show featured courses?
+                    if (controller.enrolledCourses.isEmpty &&
+                        controller.featuredCourses.isNotEmpty) ...[
+                      _buildFeaturedCoursesHeader(),
+                      _buildFeaturedCoursesList(),
+                    ],
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildEnrolledCoursesHeader() {
+    return Row(
+      children: [
+        Text(
+          "Enrolled Courses",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Get.theme.colorScheme.onSurface,
+          ),
         ),
+        const Spacer(),
+        TextButton(onPressed: () {}, child: const Text("See All")),
+      ],
+    ).paddingSymmetric(horizontal: 16, vertical: 8);
+  }
+
+  Widget _buildEnrolledCoursesList() {
+    return SizedBox(
+      height: 250,
+      child: ListView.separated(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.enrolledCourses.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 16),
+        itemBuilder: (context, index) {
+          final course = controller.enrolledCourses[index];
+          return SubjectCardVertical(
+            title: course.title,
+            instructor: 'Instructor', // We might need to fetch instructor name
+            imageUrl:
+                course.thumbnail ??
+                'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
+            onTap: () {
+              // Navigate to course details
+              Get.toNamed(
+                Routes.COURSE_DETAILS,
+                arguments: {
+                  'courseId':
+                      course.id, // Pass ID instead of full object if preferred
+                  'subject': SubjectModel(
+                    subjectId: 0, // Dummy ID
+                    title: course.title,
+                    imageUrl: course.thumbnail ?? '',
+                  ),
+                },
+              );
+            },
+            width: 200,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildContinueLearningHeader() {
+    return Row(
+      children: [
+        Text(
+          "Continue Learning",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Get.theme.colorScheme.onSurface,
+          ),
+        ),
+        const Spacer(),
+        TextButton(onPressed: () {}, child: const Text("See All")),
+      ],
+    ).paddingOnly(left: 16, right: 16, bottom: 8);
+  }
+
+  Widget _buildContinueLearningCard() {
+    // Just show the first enrolled course as "Continue Learning" for now
+    final course = controller.enrolledCourses.first;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ContinueLearningCard(
+        lessonLabel: 'Lesson 1', // Placeholder
+        title: course.title,
+        subtitle: course.description,
+        imageUrl:
+            course.thumbnail ??
+            'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
+        progress: 0.10, // Placeholder
+        onContinue: () {},
+      ),
+    );
+  }
+
+  Widget _buildFeaturedCoursesHeader() {
+    return Row(
+      children: [
+        Text(
+          "Featured Courses",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Get.theme.colorScheme.onSurface,
+          ),
+        ),
+        const Spacer(),
+        TextButton(onPressed: () {}, child: const Text("See All")),
+      ],
+    ).paddingSymmetric(horizontal: 16, vertical: 8);
+  }
+
+  Widget _buildFeaturedCoursesList() {
+    return SizedBox(
+      height: 250,
+      child: ListView.separated(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.featuredCourses.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 16),
+        itemBuilder: (context, index) {
+          final course = controller.featuredCourses[index];
+          return SubjectCardVertical(
+            title: course.title,
+            instructor: course.instructorName ?? 'Instructor',
+            imageUrl:
+                course.thumbnail ??
+                'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
+            onTap: () {
+              Get.toNamed(
+                Routes.COURSE_DETAILS,
+                arguments: {
+                  'courseId': course.id,
+                  'subject': SubjectModel(
+                    subjectId: 0,
+                    title: course.title,
+                    imageUrl: course.thumbnail ?? '',
+                  ),
+                },
+              );
+            },
+            width: 200,
+          );
+        },
       ),
     );
   }
@@ -234,7 +315,8 @@ class DashboardView extends GetResponsiveView<DashboardController> {
                             radius: 30,
                             // changed to cached network image
                             backgroundImage: CachedNetworkImageProvider(
-                              'https://avatar.iran.liara.run/public/40',
+                              controller.currentUser.value?.profilePicture ??
+                                  'https://avatar.iran.liara.run/public/40',
                             ),
                             backgroundColor: Get.theme.colorScheme.primary,
                           ),
@@ -245,7 +327,7 @@ class DashboardView extends GetResponsiveView<DashboardController> {
                               SizedBox(
                                 width: Get.width * 0.6,
                                 child: Text(
-                                  'Hello, Muhammed Shabeer OP',
+                                  'Hello, ${controller.currentUser.value?.name ?? 'User'}',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   style: TextStyle(

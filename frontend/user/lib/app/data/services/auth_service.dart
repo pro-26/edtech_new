@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:ed_tech/app/data/providers/api_provider.dart';
@@ -58,5 +59,40 @@ class AuthService extends GetxService {
     isLoggedIn.value = false;
     _accessToken.value = '';
     Get.offAllNamed('/auth');
+  }
+
+  String get userId {
+    if (_accessToken.value.isEmpty) return '';
+    try {
+      return _decodeToken(_accessToken.value)['sub'] ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  String get userRole {
+    if (_accessToken.value.isEmpty) return '';
+    try {
+      return _decodeToken(_accessToken.value)['role'] ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Map<String, dynamic> _decodeToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid token');
+    }
+
+    final payload = parts[1];
+    final normalized = base64Url.normalize(payload);
+    final resp = utf8.decode(base64Url.decode(normalized));
+    final payloadMap = json.decode(resp);
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid payload');
+    }
+
+    return payloadMap;
   }
 }
