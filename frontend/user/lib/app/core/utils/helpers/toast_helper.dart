@@ -1,49 +1,59 @@
 import 'package:flutter/material.dart';
 
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class ToastHelper extends GetxService {
   static const int _defaultDuration = 3000;
 
   void showSuccess(String message, {int duration = _defaultDuration}) {
-    Fluttertoast.showToast(
-      msg: message,
-      textColor: Get.theme.colorScheme.onSurface,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: duration ~/ 1000,
+    Get.snackbar(
+      'Success',
+      message,
       backgroundColor: Get.theme.colorScheme.primary,
+      colorText: Get.theme.colorScheme.onPrimary,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: Duration(milliseconds: duration),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
     );
   }
 
   void showError(String message, {int duration = _defaultDuration}) {
-    Fluttertoast.showToast(
-      msg: message,
+    Get.snackbar(
+      'Error',
+      message,
       backgroundColor: Get.theme.colorScheme.error,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: duration ~/ 1000,
+      colorText: Get.theme.colorScheme.onError,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: Duration(milliseconds: duration),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
     );
   }
 
   void showInfo(String message, {int duration = _defaultDuration}) {
-    Fluttertoast.showToast(
-      msg: message,
+    Get.snackbar(
+      'Info',
+      message,
       backgroundColor: const Color.fromARGB(255, 225, 240, 252),
-      textColor: Get.theme.colorScheme.onSurface,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: duration ~/ 1000,
+      colorText: Get.theme.colorScheme.onSurface,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: Duration(milliseconds: duration),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
     );
   }
 
   void showWarning(String message, {int duration = _defaultDuration}) {
-    Fluttertoast.showToast(
-      msg: message,
+    Get.snackbar(
+      'Warning',
+      message,
       backgroundColor: const Color.fromARGB(255, 255, 237, 210),
-      textColor: Get.theme.colorScheme.onSurface,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: duration ~/ 1000,
+      colorText: Get.theme.colorScheme.onSurface,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: Duration(milliseconds: duration),
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
     );
   }
 }

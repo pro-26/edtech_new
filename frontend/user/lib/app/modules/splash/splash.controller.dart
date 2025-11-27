@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import 'package:ed_tech/app/routes/app_pages.dart';
+import 'package:ed_tech/app/data/services/auth_service.dart';
 
 class SplashController extends GetxController {
   @override
@@ -13,8 +14,12 @@ class SplashController extends GetxController {
   void onReady() {
     // simulate a delay
     Future.delayed(const Duration(seconds: 2), () {
-      Get.offAllNamed(Routes.AUTH); // Navigate to Auth page after delay
-      // Get.offAllNamed(Routes.HOME); // Navigate to Home page after delay
+      final authService = Get.find<AuthService>();
+      if (authService.isLoggedIn.value) {
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        Get.offAllNamed(Routes.AUTH);
+      }
     });
 
     super.onReady();

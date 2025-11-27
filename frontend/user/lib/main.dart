@@ -1,11 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-import 'package:appwrite/appwrite.dart';
 import 'package:get/get.dart';
 
 import 'package:ed_tech/app/core/theme/app_theme.dart';
-import 'package:ed_tech/app/core/values/constants.dart';
 import 'package:ed_tech/app/routes/app_bindings.dart';
 
 import 'app/routes/app_pages.dart';
@@ -23,16 +22,6 @@ import 'app/routes/app_pages.dart';
 void main() {
   // Always ensure binding is the very first call before any plugin / GetX usage.
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Configure Appwrite client BEFORE building the widget tree.
-  final client = Client()
-    ..setEndpoint(AppwriteConstants.appwriteEndpoint)
-    ..setProject(AppwriteConstants.appwriteProjectId)
-    ..setSelfSigned(); // Remove in production if you have valid SSL
-
-  // Register dependencies after binding initialization.
-  Get.put<Client>(client, permanent: true);
-
   runApp(const MyApp());
 }
 
@@ -43,6 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'EdTech',
+      builder: FToastBuilder(),
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       unknownRoute: AppPages.unknownRoute,
@@ -56,7 +46,8 @@ class MyApp extends StatelessWidget {
       popGesture: true,
       enableLog: kDebugMode,
       logWriterCallback: (String log, {bool? isError}) => debugPrint(log),
-      navigatorObservers: [], //used for route observability || typically for user flow tracking
+      navigatorObservers:
+          [], //used for route observability || typically for user flow tracking
     );
   }
 }
